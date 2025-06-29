@@ -1,9 +1,76 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio - Servicio Técnico{% endblock %}
+{% block title %}Inicio - {{ config.APP_NAME }}{% endblock %}
 
 {% block content %}
-    <h1>Bienvenido al Sistema de Gestión de Servicio Técnico</h1>
-    <p>Esta es la página de inicio. ¡La aplicación ahora tiene estilo Bootstrap!</p>
-    <p>Usa la barra de navegación para explorar las secciones de Clientes y Servicios (próximamente).</p>
+<div class="jumbotron jumbotron-fluid text-center bg-light p-5 rounded-3 mb-4">
+    <h1 class="display-4"><i class="bi bi-gear-fill"></i> Bienvenido a {{ config.APP_NAME }}</h1>
+    <p class="lead">Tu sistema de gestión de clientes y servicios técnicos.</p>
+    <hr class="my-4">
+    <p>Aquí puedes administrar eficientemente tus clientes, registrar y hacer seguimiento de los servicios de reparación de equipos.</p>
+</div>
+
+<div class="row text-center mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card bg-primary text-white h-100 shadow-sm">
+            <div class="card-body">
+                <i class="bi bi-people-fill display-4 mb-3"></i>
+                <h5 class="card-title">Total de Clientes</h5>
+                <p class="card-text display-3">{{ total_clientes }}</p>
+                <a href="{{ url_for('listar_clientes') }}" class="btn btn-light mt-3"><i class="bi bi-eye"></i> Ver Clientes</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card bg-success text-white h-100 shadow-sm">
+            <div class="card-body">
+                <i class="bi bi-tools display-4 mb-3"></i>
+                <h5 class="card-title">Total de Servicios</h5>
+                <p class="card-text display-3">{{ total_servicios }}</p>
+                <a href="{{ url_for('listar_servicios') }}" class="btn btn-light mt-3"><i class="bi bi-eye"></i> Ver Servicios</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="text-center mb-4">Estado Actual de Servicios</h2>
+<div class="row mb-5">
+    {% for estado in servicios_resumen %}
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card border-{{ estado.clase }} h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi {{ estado.icono }} display-5 text-{{ estado.clase }} mb-2"></i>
+                <h5 class="card-title text-{{ estado.clase }}">{{ estado.estado }}</h5>
+                <p class="card-text display-4">{{ estado.count }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<h2 class="text-center mb-4">Accesos Rápidos</h2>
+<div class="row justify-content-center">
+    <div class="col-md-4 col-sm-6 mb-3">
+        <div class="d-grid gap-2">
+            <a href="{{ url_for('nuevo_cliente') }}" class="btn btn-lg btn-outline-primary py-3">
+                <i class="bi bi-person-plus"></i> Añadir Nuevo Cliente
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4 col-sm-6 mb-3">
+        <div class="d-grid gap-2">
+            <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-lg btn-outline-success py-3">
+                <i class="bi bi-plus-circle"></i> Añadir Nuevo Servicio
+            </a>
+        </div>
+    </div>
+    <div class="col-md-4 col-sm-6 mb-3"> {# Nuevo botón para reportes #}
+        <div class="d-grid gap-2">
+            <a href="{{ url_for('reportes') }}" class="btn btn-lg btn-outline-info py-3">
+                <i class="bi bi-graph-up"></i> Ver Reportes
+            </a>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

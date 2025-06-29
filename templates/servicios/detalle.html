@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Servicio #{{ servicio.id }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">
+    <i class="bi bi-info-circle"></i> Detalle de Servicio #{{ servicio.id }}
+</h1>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-person-fill"></i> Información del Cliente</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>Nombre y Apellido:</strong> {{ servicio.cliente.nombre }} {{ servicio.cliente.apellido }}</p>
+        <p><strong>DNI/CUIT:</strong> {{ servicio.cliente.dni_cuit if servicio.cliente.dni_cuit else '-' }}</p>
+        <p><strong>Teléfono:</strong> {{ servicio.cliente.telefono if servicio.cliente.telefono else '-' }}</p>
+        <p><strong>Email:</strong> {{ servicio.cliente.email if servicio.cliente.email else '-' }}</p>
+        <p><strong>Dirección:</strong> {{ servicio.cliente.direccion if servicio.cliente.direccion else '-' }}</p>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-info text-dark">
+        <h5 class="mb-0"><i class="bi bi-gear"></i> Detalles del Equipo y Problema</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>Tipo de Equipo:</strong> {{ servicio.tipo_equipo }}</p>
+        <p><strong>Marca/Modelo:</strong> {{ servicio.marca_modelo if servicio.marca_modelo else '-' }}</p>
+        <p><strong>Problema Reportado:</strong> {{ servicio.problema_reportado }}</p>
+        <p><strong>Observaciones Técnicas:</strong> {{ servicio.observaciones_tecnicas if servicio.observaciones_tecnicas else 'N/A' }}</p>
+        <p><strong>Solución Implementada:</strong> {{ servicio.solucion_implementada if servicio.solucion_implementada else 'N/A' }}</p>
+        <p><strong>Costo Total:</strong> {{ servicio.costo_total | format_currency }}</p>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0"><i class="bi bi-clipboard-check"></i> Estado y Fechas</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>Fecha de Ingreso:</strong> {{ servicio.fecha_ingreso.strftime('%d/%m/%Y %H:%M') }}</p>
+        <p><strong>Estado Actual:</strong> 
+            {% set estado_class = {
+                'Pendiente': 'bg-secondary',
+                'En Diagnóstico': 'bg-info text-dark',
+                'En Reparación': 'bg-primary',
+                'En Espera de Repuestos': 'bg-warning text-dark',
+                'Listo para Retirar': 'bg-success',
+                'Entregado': 'bg-success',
+                'Cancelado': 'bg-danger'
+            }[servicio.estado_actual] %}
+            <span class="badge {{ estado_class }}">{{ servicio.estado_actual }}</span>
+        </p>
+        <p><strong>Fecha de Entrega Estimada/Real:</strong> {{ servicio.fecha_entrega.strftime('%d/%m/%Y %H:%M') if servicio.fecha_entrega else 'Pendiente' }}</p>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Historial de Estados</h5>
+    </div>
+    <div class="card-body">
+        {% if historial %}
+        <ul class="list-group list-group-flush">
+            {% for h in historial %}
+            <li class="list-group-item">
+                <span class="fw-bold">{{ h.fecha_cambio.strftime('%d/%m/%Y %H:%M') }}:</span> 
+                {{ h.estado }} 
+                {% if h.observaciones %}<br><small class="text-muted">{{ h.observaciones }}</small>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No hay historial de estados para este servicio.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card-footer text-end p-3 bg-light">
+    <a href="{{ url_for('imprimir_servicio', servicio_id=servicio.id) }}" class="btn btn-info me-2">
+        <i class="bi bi-printer"></i> Imprimir
+    </a>
+    <a href="{{ url_for('editar_servicio', servicio_id=servicio.id) }}" class="btn btn-warning me-2">
+        <i class="bi bi-pencil"></i> Editar
+    </a>
+    <a href="{{ url_for('listar_servicios') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Volver al Listado
+    </a>
+</div>
+
+{% endblock %}

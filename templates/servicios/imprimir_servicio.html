@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orden de Servicio #{{ servicio.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .order-container {
+            background-color: #fff;
+            margin: 20px auto;
+            padding: 30px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            max-width: 850px; /* Ancho más adecuado para una orden */
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #007bff; /* Color primario de Bootstrap */
+        }
+        .header-left {
+            flex: 1;
+        }
+        .header-right {
+            text-align: right;
+            flex: 1;
+        }
+        .logo {
+            max-height: 80px;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+        h1.order-title {
+            color: #007bff;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .section-title {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 8px 15px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            border-left: 5px solid #007bff;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px 20px; /* Espacio entre filas y columnas */
+            margin-bottom: 20px;
+        }
+        .info-item strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #555;
+            font-size: 13px;
+        }
+        .signature-section {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px dashed #ced4da;
+        }
+        .signature-box {
+            text-align: center;
+            width: 45%;
+        }
+        .signature-line {
+            border-bottom: 1px solid #333;
+            width: 80%;
+            margin: 0 auto 5px auto;
+        }
+        .no-print {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Estilos para impresión */
+        @media print {
+            body {
+                background-color: #fff;
+                -webkit-print-color-adjust: exact !important; /* Para que los colores de fondo se impriman */
+                print-color-adjust: exact !important;
+            }
+            .order-container {
+                margin: 0;
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+                padding: 0; /* Eliminar padding para aprovechar el espacio */
+            }
+            .no-print {
+                display: none !important;
+            }
+            .header-section {
+                border-bottom: 2px solid #007bff;
+            }
+            .section-title {
+                background-color: #e9ecef !important;
+                border-left: 5px solid #007bff !important;
+            }
+            /* Asegurar que las imágenes se impriman */
+            img {
+                -webkit-print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="order-container">
+        <div class="header-section">
+            <div class="header-left">
+                <img src="https://via.placeholder.com/100x80?text=Tu+Logo" alt="Logo de la Empresa" class="logo">
+                <h4 class="d-inline-block align-middle mb-0 ms-2">Tu Empresa de Servicios Técnicos</h4>
+                <p class="mb-0">
+                    <small>Av. Principal 1234, C.P. 4440</small><br>
+                    <small>San José de Metán, Salta - Argentina</small><br>
+                    <small>Tel: (03876) 123-4567 | Email: contacto@tudominio.com</small>
+                </p>
+            </div>
+            <div class="header-right">
+                <h1 class="order-title">ORDEN DE SERVICIO</h1>
+                <h2>Nº: <span class="text-primary">{{ servicio.id }}</span></h2>
+                <p class="mb-0">Fecha de Emisión: {{ now.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+        </div>
+
+        <div class="section-title">Datos del Cliente</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Nombre y Apellido:</strong>
+                {{ servicio.cliente.nombre }} {{ servicio.cliente.apellido }}
+            </div>
+            <div class="info-item">
+                <strong>DNI/CUIT:</strong>
+                {{ servicio.cliente.dni_cuit if servicio.cliente.dni_cuit else '-' }}
+            </div>
+            <div class="info-item">
+                <strong>Teléfono:</strong>
+                {{ servicio.cliente.telefono if servicio.cliente.telefono else '-' }}
+            </div>
+            <div class="info-item">
+                <strong>Email:</strong>
+                {{ servicio.cliente.email if servicio.cliente.email else '-' }}
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;"> {# Ocupa todo el ancho #}
+                <strong>Dirección:</strong>
+                {{ servicio.cliente.direccion if servicio.cliente.direccion else '-' }}
+            </div>
+        </div>
+
+        <div class="section-title">Detalles del Equipo</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Tipo de Equipo:</strong>
+                {{ servicio.tipo_equipo }}
+            </div>
+            <div class="info-item">
+                <strong>Marca/Modelo:</strong>
+                {{ servicio.marca_modelo if servicio.marca_modelo else '-' }}
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;"> {# Ocupa todo el ancho #}
+                <strong>Problema Reportado:</strong>
+                {{ servicio.problema_reportado }}
+            </div>
+        </div>
+        
+        <div class="section-title">Diagnóstico y Solución Técnica</div>
+        <div class="info-grid">
+            <div class="info-item" style="grid-column: 1 / -1;">
+                <strong>Observaciones Técnicas:</strong>
+                {{ servicio.observaciones_tecnicas if servicio.observaciones_tecnicas else 'Pendiente / N/A' }}
+            </div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+                <strong>Solución Implementada:</strong>
+                {{ servicio.solucion_implementada if servicio.solucion_implementada else 'Pendiente / N/A' }}
+            </div>
+        </div>
+
+        <div class="section-title">Resumen de Servicio y Costos</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Fecha de Ingreso:</strong>
+                {{ servicio.fecha_ingreso.strftime('%d/%m/%Y %H:%M') }}
+            </div>
+            <div class="info-item">
+                <strong>Estado Actual:</strong>
+                <span class="text-primary fw-bold">{{ servicio.estado_actual }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Fecha de Entrega Estimada/Real:</strong>
+                {{ servicio.fecha_entrega.strftime('%d/%m/%Y %H:%M') if servicio.fecha_entrega else 'Pendiente' }}
+            </div>
+            <div class="info-item">
+                <strong>Costo Total Estimado/Final:</strong>
+                <span class="text-success fw-bold fs-5">{{ servicio.costo_total | format_currency }}</span>
+            </div>
+        </div>
+
+        {# Opcional: Historial de estados para la orden de servicio si es relevante #}
+        {#
+        <div class="section-title">Historial de Estados</div>
+        <div class="info-grid">
+            <div class="info-item" style="grid-column: 1 / -1;">
+                {% if historial %}
+                    <ul class="list-unstyled">
+                        {% for h in historial %}
+                        <li><strong>{{ h.fecha_cambio.strftime('%d/%m/%Y %H:%M') }}:</strong> {{ h.estado }} - {{ h.observaciones if h.observaciones else 'Sin observaciones.' }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No hay historial de estados registrado.</p>
+                {% endif %}
+            </div>
+        </div>
+        #}
+
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p>Firma del Cliente / Aclaración</p>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p>Firma del Técnico / Aclaración</p>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <p><small>Gracias por confiar en nuestros servicios.</small></p>
+            <p><small>Conserve esta orden para futuras referencias.</small></p>
+        </div>
+
+    </div>
+
+    <div class="no-print">
+        <button onclick="window.print()" class="btn btn-primary btn-lg mt-3"><i class="bi bi-printer"></i> Imprimir Orden</button>
+        <a href="{{ url_for('detalle_servicio', servicio_id=servicio.id) }}" class="btn btn-secondary btn-lg ms-3">
+            <i class="bi bi-arrow-left"></i> Volver a Detalles
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxRjL/23w+61rQcVAXgX0U2/B+p/G/S/t" crossorigin="anonymous"></script>
+</body>
+</html>

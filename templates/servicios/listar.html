@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Listado de Servicios{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">
+    <i class="bi bi-tools"></i> Listado de Servicios
+    <a href="{{ url_for('nuevo_servicio') }}" class="btn btn-primary float-end">
+        <i class="bi bi-plus-circle"></i> Nuevo Servicio
+    </a>
+</h1>
+
+<div class="mb-3 card card-body bg-light">
+    <form class="row g-3 align-items-end" action="{{ url_for('listar_servicios') }}" method="get">
+        <div class="col-md-5">
+            <label for="searchQuery" class="form-label">Buscar por Cliente:</label>
+            <input class="form-control" type="search" id="searchQuery" placeholder="Nombre o Apellido del Cliente" name="q" value="{{ query if query }}">
+        </div>
+        <div class="col-md-3">
+            <label for="estadoFiltro" class="form-label">Filtrar por Estado:</label>
+            <select class="form-select" id="estadoFiltro" name="estado_filtro">
+                <option value="">Todos los Estados</option>
+                <option value="Pendiente" {% if estado_filtro_actual == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="En Diagnóstico" {% if estado_filtro_actual == 'En Diagnóstico' %}selected{% endif %}>En Diagnóstico</option>
+                <option value="En Reparación" {% if estado_filtro_actual == 'En Reparación' %}selected{% endif %}>En Reparación</option>
+                <option value="En Espera de Repuestos" {% if estado_filtro_actual == 'En Espera de Repuestos' %}selected{% endif %}>En Espera de Repuestos</option>
+                <option value="Listo para Retirar" {% if estado_filtro_actual == 'Listo para Retirar' %}selected{% endif %}>Listo para Retirar</option>
+                <option value="Entregado" {% if estado_filtro_actual == 'Entregado' %}selected{% endif %}>Entregado</option>
+                <option value="Cancelado" {% if estado_filtro_actual == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label for="mesFiltro" class="form-label">Filtrar por Fecha:</label>
+            <select class="form-select" id="mesFiltro" name="mes_filtro">
+                <option value="">Todas las Fechas</option>
+                <option value="ultimo_mes" {% if mes_filtro_actual == 'ultimo_mes' %}selected{% endif %}>Último Mes</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex">
+            <button class="btn btn-primary me-2 flex-grow-1" type="submit"><i class="bi bi-funnel-fill"></i> Filtrar</button>
+            {% if query or estado_filtro_actual or mes_filtro_actual %}
+                <a href="{{ url_for('listar_servicios') }}" class="btn btn-outline-secondary flex-grow-1"><i class="bi bi-x-circle-fill"></i> Limpiar</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+{#
+    Este bloque de mensajes flash ha sido movido a templates/base.html
+    para evitar que los mensajes se dupliquen.
+#}
+{#
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="mt-3">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+#}
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Equipo</th>
+            <th>Problema</th>
+            <th>Fecha Ingreso</th>
+            <th>Costo Total</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for servicio in servicios %}
+        <tr>
+            <td>{{ servicio.id }}</td>
+            <td>{{ servicio.cliente.nombre }} {{ servicio.cliente.apellido }}</td>
+            <td>{{ servicio.tipo_equipo }} ({{ servicio.marca_modelo if servicio.marca_modelo else '-' }})</td>
+            <td>{{ servicio.problema_reportado | truncate(50, True, '...') }}</td>
+            <td>{{ servicio.fecha_ingreso.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>{{ servicio.costo_total | format_currency }}</td>
+            <td>
+                {% set estado_class = {
+                    'Pendiente': 'bg-secondary',
+                    'En Diagnóstico': 'bg-info text-dark',
+                    'En Reparación': 'bg-primary',
+                    'En Espera de Repuestos': 'bg-warning text-dark',
+                    'Listo para Retirar': 'bg-success',
+                    'Entregado': 'bg-success',
+                    'Cancelado': 'bg-danger'
+                }[servicio.estado_actual] %}
+                <span class="badge {{ estado_class }}">{{ servicio.estado_actual }}</span>
+            </td>
+            <td>
+                <a href="{{ url_for('detalle_servicio', servicio_id=servicio.id) }}" class="btn btn-sm btn-info me-1" title="Detalle"><i class="bi bi-eye"></i></a>
+                <a href="{{ url_for('editar_servicio', servicio_id=servicio.id) }}" class="btn btn-sm btn-warning me-1" title="Editar"><i class="bi bi-pencil"></i></a>
+                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ servicio.id }}" title="Eliminar"><i class="bi bi-trash"></i></button>
+
+                <div class="modal fade" id="confirmDeleteModal{{ servicio.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel{{ servicio.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmDeleteModalLabel{{ servicio.id }}">Confirmar Eliminación</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                ¿Estás seguro de que quieres eliminar el servicio <strong>#{{ servicio.id }}</strong> del cliente <strong>{{ servicio.cliente.nombre }} {{ servicio.cliente.apellido }}</strong>?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <form action="{{ url_for('eliminar_servicio', servicio_id=servicio.id) }}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8" class="text-center">No hay servicios registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
